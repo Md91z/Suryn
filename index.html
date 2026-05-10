@@ -1,0 +1,2448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SURYN — Le Culte de l'Équilibre Oublié</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@300;400;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sand: #c8a96e;
+  --sand-pale: #e8d5b0;
+  --sand-dark: #8b6f3e;
+  --gold: #d4a843;
+  --gold-pale: #f0d080;
+  --black: #0a0806;
+  --deep: #120e08;
+  --void: #1a1510;
+  --ash: #2a2018;
+  --stone: #3d3025;
+  --dust: #6b5a3e;
+  --fog: #9e8a6a;
+  --white-sand: #f5ead8;
+  --text: #d4c4a0;
+  --text-dim: #8a7a5e;
+  --accent: #c8843a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'EB Garamond', serif;
+  font-size: 18px;
+  line-height: 1.8;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CUSTOM CURSOR */
+.cursor {
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+  mix-blend-mode: screen;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid var(--sand);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  transition: all 0.15s ease;
+  opacity: 0.5;
+}
+
+/* CANVAS */
+#sandCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* NAVIGATION */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 20px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(10,8,6,0.95) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(200,169,110,0.1);
+}
+
+.nav-logo {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.4rem;
+  color: var(--gold);
+  letter-spacing: 0.3em;
+  text-decoration: none;
+  text-shadow: 0 0 30px rgba(212,168,67,0.5);
+}
+
+.nav-links {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--fog);
+  text-decoration: none;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.nav-links a:hover {
+  color: var(--gold-pale);
+  text-shadow: 0 0 20px rgba(212,168,67,0.6);
+}
+
+/* HERO */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 100px 40px;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 80% 60% at 50% 80%, rgba(139,111,62,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 30% 20%, rgba(200,132,58,0.08) 0%, transparent 50%),
+    linear-gradient(to bottom, #0a0806 0%, #120e08 40%, #1a1208 70%, #0a0806 100%);
+}
+
+.hero-symbol {
+  font-size: 5rem;
+  color: var(--gold);
+  opacity: 0.15;
+  position: absolute;
+  font-family: 'Cinzel Decorative', serif;
+  animation: float 8s ease-in-out infinite;
+  text-shadow: 0 0 60px rgba(212,168,67,0.3);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(3deg); }
+}
+
+.hero-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.5em;
+  color: var(--sand-dark);
+  text-transform: uppercase;
+  margin-bottom: 30px;
+  opacity: 0;
+  animation: fadeUp 1.5s ease 0.5s forwards;
+}
+
+.hero-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(4rem, 12vw, 9rem);
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  line-height: 1.1;
+  text-shadow: 0 0 80px rgba(212,168,67,0.4), 0 0 160px rgba(212,168,67,0.15);
+  opacity: 0;
+  animation: fadeUp 1.5s ease 0.8s forwards;
+  position: relative;
+}
+
+.hero-subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+  color: var(--dust);
+  text-transform: uppercase;
+  margin-top: 20px;
+  margin-bottom: 60px;
+  opacity: 0;
+  animation: fadeUp 1.5s ease 1.1s forwards;
+}
+
+.hero-divider {
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--sand-dark), transparent);
+  margin: 0 auto 50px;
+  opacity: 0;
+  animation: fadeUp 1.5s ease 1.3s forwards;
+}
+
+.hero-quote {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+  color: var(--sand-pale);
+  max-width: 700px;
+  line-height: 1.6;
+  opacity: 0;
+  animation: fadeUp 1.5s ease 1.6s forwards;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+
+.hero-quote-attr {
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: var(--dust);
+  margin-top: 20px;
+  opacity: 0;
+  animation: fadeUp 1.5s ease 1.9s forwards;
+  font-style: normal;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  animation: fadeUp 1.5s ease 2.5s forwards;
+}
+
+.scroll-hint span {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: var(--dust);
+  text-transform: uppercase;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--sand-dark), transparent);
+  animation: scrollPulse 2s ease infinite;
+}
+
+@keyframes scrollPulse {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* SECTION BASE */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 120px 0;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 60px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.section-tag {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.5em;
+  color: var(--accent);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  color: var(--gold-pale);
+  letter-spacing: 0.1em;
+  line-height: 1.3;
+  text-shadow: 0 0 40px rgba(212,168,67,0.2);
+}
+
+.section-subtitle {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--dust);
+  margin-top: 15px;
+}
+
+.ornament {
+  text-align: center;
+  color: var(--sand-dark);
+  font-size: 1.5rem;
+  letter-spacing: 1em;
+  margin: 40px 0;
+  opacity: 0.5;
+}
+
+/* INTRO SECTION */
+#intro {
+  background: linear-gradient(to bottom, #0a0806, #120e08 50%, #0a0806);
+}
+
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+  margin-bottom: 80px;
+}
+
+.intro-text h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.intro-text p {
+  color: var(--text);
+  margin-bottom: 25px;
+  font-size: 1.05rem;
+}
+
+.intro-principles {
+  list-style: none;
+  margin-top: 30px;
+}
+
+.intro-principles li {
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(200,169,110,0.1);
+  display: flex;
+  align-items: start;
+  gap: 20px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.intro-principles li::before {
+  content: '⟡';
+  color: var(--gold);
+  font-style: normal;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pillar-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 60px;
+}
+
+.pillar-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(200,169,110,0.12);
+  padding: 40px 30px;
+  text-align: center;
+  transition: border-color 0.4s, background 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, var(--sand-dark), transparent);
+}
+
+.pillar-card:hover {
+  border-color: rgba(200,169,110,0.35);
+  background: rgba(200,169,110,0.04);
+}
+
+.pillar-icon {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  display: block;
+  color: var(--gold);
+  opacity: 0.7;
+}
+
+.pillar-card h4 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: var(--sand-pale);
+  text-transform: uppercase;
+  margin-bottom: 15px;
+}
+
+.pillar-card p {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* PULLQUOTE */
+.pullquote {
+  border-left: 2px solid var(--gold);
+  padding: 30px 50px;
+  margin: 60px 0;
+  background: rgba(212,168,67,0.03);
+  position: relative;
+}
+
+.pullquote::before {
+  content: '"';
+  position: absolute;
+  top: -20px;
+  left: 30px;
+  font-size: 6rem;
+  color: var(--sand-dark);
+  opacity: 0.3;
+  font-family: 'EB Garamond', serif;
+  line-height: 1;
+}
+
+.pullquote p {
+  font-size: 1.4rem;
+  font-style: italic;
+  color: var(--sand-pale);
+  line-height: 1.6;
+}
+
+.pullquote cite {
+  display: block;
+  margin-top: 15px;
+  font-size: 0.72rem;
+  letter-spacing: 0.35em;
+  color: var(--dust);
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+/* HISTORY SECTION */
+#histoire {
+  background: linear-gradient(to bottom, #0a0806, #0d0a05 50%, #0a0806);
+}
+
+.timeline {
+  position: relative;
+  padding-left: 60px;
+  margin-top: 60px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--sand-dark) 10%, var(--sand-dark) 90%, transparent);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 70px;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.timeline-item.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -47px;
+  top: 8px;
+  width: 14px; height: 14px;
+  border: 1px solid var(--sand-dark);
+  border-radius: 50%;
+  background: var(--black);
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.timeline-item:hover .timeline-dot {
+  border-color: var(--gold);
+  background: var(--ash);
+  box-shadow: 0 0 15px rgba(212,168,67,0.3);
+}
+
+.timeline-era {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.timeline-item h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  color: var(--sand-pale);
+  margin-bottom: 15px;
+  letter-spacing: 0.05em;
+}
+
+.timeline-item p {
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.manuscript {
+  background: rgba(139,111,62,0.05);
+  border: 1px solid rgba(139,111,62,0.2);
+  border-radius: 2px;
+  padding: 50px;
+  margin: 60px 0;
+  position: relative;
+  font-style: italic;
+}
+
+.manuscript::before {
+  content: '— Fragment des Archives Sablées, Ère Pré-Fondatrice';
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-style: normal;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(139,111,62,0.2);
+}
+
+.manuscript p {
+  color: var(--sand-pale);
+  font-size: 1.05rem;
+  line-height: 1.9;
+  margin-bottom: 20px;
+}
+
+/* PHILOSOPHY */
+#philosophie {
+  background: linear-gradient(to bottom, #0a0806, #0f0b06 50%, #0a0806);
+}
+
+.philosophy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  margin: 60px 0;
+}
+
+.philosophy-card {
+  padding: 40px;
+  border: 1px solid rgba(200,169,110,0.1);
+  background: rgba(255,255,255,0.015);
+  transition: all 0.4s;
+  cursor: default;
+}
+
+.philosophy-card:hover {
+  border-color: rgba(200,169,110,0.3);
+  background: rgba(200,169,110,0.03);
+  transform: translateY(-3px);
+}
+
+.philosophy-card h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(200,169,110,0.1);
+}
+
+.philosophy-card p {
+  color: var(--text-dim);
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+.quotes-wall {
+  margin: 80px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.quote-item {
+  padding: 35px 0;
+  border-bottom: 1px solid rgba(200,169,110,0.08);
+  display: flex;
+  gap: 40px;
+  align-items: start;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.quote-item.visible { opacity: 1; }
+
+.quote-number {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 2rem;
+  color: var(--sand-dark);
+  opacity: 0.4;
+  min-width: 60px;
+  line-height: 1;
+}
+
+.quote-text {
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--sand-pale);
+  line-height: 1.6;
+}
+
+.quote-source {
+  font-size: 0.68rem;
+  letter-spacing: 0.35em;
+  color: var(--dust);
+  margin-top: 10px;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+/* DIALOGUE */
+.dialogue {
+  margin: 60px 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dialogue-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.dialogue-line {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  align-items: start;
+}
+
+.dialogue-speaker {
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  min-width: 80px;
+  padding-top: 3px;
+}
+
+.dialogue-words {
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.7;
+  border-left: 1px solid rgba(200,169,110,0.15);
+  padding-left: 25px;
+}
+
+/* VEILLEURS */
+#veilleurs {
+  background: linear-gradient(to bottom, #0a0806, #100c06 50%, #0a0806);
+}
+
+.veilleurs-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  margin: 60px 0;
+}
+
+.veilleur-card {
+  text-align: center;
+  padding: 30px 20px;
+  border: 1px solid rgba(200,169,110,0.1);
+  transition: all 0.5s;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.veilleur-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--sand-dark), transparent);
+  transform: scaleX(0);
+  transition: transform 0.5s;
+}
+
+.veilleur-card:hover::before { transform: scaleX(1); }
+
+.veilleur-card:hover {
+  background: rgba(200,169,110,0.04);
+  border-color: rgba(200,169,110,0.25);
+}
+
+.veilleur-glyph {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 15px;
+  filter: sepia(1) brightness(0.7);
+}
+
+.veilleur-card h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  color: var(--sand-pale);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.veilleur-card p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.ritual-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  margin: 60px 0;
+}
+
+.ritual-block h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(200,169,110,0.1);
+}
+
+.ritual-block p {
+  color: var(--text-dim);
+  font-size: 0.98rem;
+  line-height: 1.8;
+  margin-bottom: 15px;
+}
+
+.ritual-block ol, .ritual-block ul {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 2;
+  padding-left: 20px;
+}
+
+.oath-box {
+  background: rgba(200,169,110,0.04);
+  border: 1px solid rgba(200,169,110,0.15);
+  padding: 50px;
+  text-align: center;
+  margin: 60px 0;
+  position: relative;
+}
+
+.oath-box::before, .oath-box::after {
+  content: '⟡ ⟡ ⟡';
+  display: block;
+  color: var(--sand-dark);
+  letter-spacing: 1em;
+  margin-bottom: 30px;
+  font-size: 0.8rem;
+}
+.oath-box::after { margin-top: 30px; margin-bottom: 0; }
+
+.oath-box p {
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--sand-pale);
+  line-height: 1.8;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* CHAKRA */
+#chakra {
+  background: linear-gradient(to bottom, #0a0806, #0a0d08 50%, #0a0806);
+}
+
+.chakra-intro {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 80px;
+  align-items: start;
+  margin-bottom: 80px;
+}
+
+.chakra-symbol {
+  text-align: center;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 8rem;
+  color: var(--gold);
+  opacity: 0.1;
+  line-height: 1;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 0.18; transform: scale(1.05); }
+}
+
+.techniques-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  margin: 60px 0;
+}
+
+.technique-card {
+  padding: 30px 25px;
+  border: 1px solid rgba(200,169,110,0.08);
+  background: rgba(0,0,0,0.3);
+  transition: all 0.4s;
+}
+
+.technique-card:hover {
+  border-color: rgba(200,169,110,0.2);
+  background: rgba(200,169,110,0.02);
+}
+
+.technique-rank {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.technique-card h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  color: var(--sand-pale);
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.technique-card p {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* EVEIL */
+#eveil {
+  background: linear-gradient(to bottom, #0a0806, #06060a 50%, #0a0806);
+}
+
+.prophecy {
+  background: rgba(100,80,200,0.03);
+  border: 1px solid rgba(100,80,180,0.15);
+  padding: 50px;
+  margin: 60px 0;
+  position: relative;
+}
+
+.prophecy::before {
+  content: 'PROPHÉTIE';
+  position: absolute;
+  top: -10px;
+  left: 40px;
+  background: var(--black);
+  padding: 0 15px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: rgba(150,130,220,0.6);
+}
+
+.prophecy p {
+  font-style: italic;
+  color: var(--sand-pale);
+  font-size: 1.05rem;
+  line-height: 1.9;
+  margin-bottom: 20px;
+}
+
+.debate-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin: 60px 0;
+}
+
+.debate-card {
+  padding: 40px;
+  border: 1px solid rgba(200,169,110,0.1);
+}
+
+.debate-card.for { border-color: rgba(80,200,100,0.15); }
+.debate-card.against { border-color: rgba(200,80,80,0.15); }
+
+.debate-card h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+}
+
+.debate-card.for h3 { color: rgba(80,200,100,0.7); border-bottom-color: rgba(80,200,100,0.15); }
+.debate-card.against h3 { color: rgba(200,80,80,0.7); border-bottom-color: rgba(200,80,80,0.15); }
+
+.debate-card p {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+/* TEXTES SACRÉS */
+#textes {
+  background: linear-gradient(to bottom, #0a0806, #0c0907 50%, #0a0806);
+}
+
+.sacred-text {
+  margin: 60px 0;
+  padding: 0;
+}
+
+.sacred-text-header {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.sacred-text-number {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 3rem;
+  color: var(--sand-dark);
+  opacity: 0.4;
+  line-height: 1;
+}
+
+.sacred-text-header h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--sand-pale);
+  letter-spacing: 0.1em;
+}
+
+.sacred-text-header p {
+  font-size: 0.72rem;
+  color: var(--dust);
+  letter-spacing: 0.2em;
+  margin-top: 5px;
+}
+
+.sacred-text-body {
+  padding: 40px;
+  border-left: 1px solid rgba(200,169,110,0.15);
+  background: rgba(0,0,0,0.2);
+}
+
+.sacred-text-body p {
+  font-style: italic;
+  color: var(--text);
+  font-size: 1.05rem;
+  line-height: 2;
+  margin-bottom: 20px;
+}
+
+/* INTERACTIVE */
+#interactif {
+  background: linear-gradient(to bottom, #0a0806, #0e0b06 50%, #0a0806);
+}
+
+/* QUIZ */
+.quiz-container {
+  max-width: 700px;
+  margin: 60px auto;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(200,169,110,0.15);
+  padding: 60px;
+}
+
+.quiz-title-sm {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.quiz-question {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--sand-pale);
+  line-height: 1.6;
+  margin-bottom: 30px;
+  font-style: italic;
+}
+
+.quiz-options {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quiz-option {
+  padding: 15px 25px;
+  border: 1px solid rgba(200,169,110,0.15);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+  background: none;
+  text-align: left;
+  font-family: 'EB Garamond', serif;
+}
+
+.quiz-option:hover {
+  border-color: rgba(200,169,110,0.4);
+  color: var(--sand-pale);
+  background: rgba(200,169,110,0.04);
+}
+
+.quiz-option.selected {
+  border-color: var(--gold);
+  color: var(--gold-pale);
+  background: rgba(212,168,67,0.06);
+}
+
+.quiz-progress {
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--dust);
+  margin-bottom: 30px;
+}
+
+.quiz-btn {
+  display: block;
+  margin: 30px auto 0;
+  padding: 15px 50px;
+  background: none;
+  border: 1px solid var(--sand-dark);
+  color: var(--sand-pale);
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.quiz-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold-pale);
+  background: rgba(212,168,67,0.06);
+}
+
+.quiz-result {
+  text-align: center;
+  display: none;
+}
+
+.quiz-result h3 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.5rem;
+  color: var(--gold-pale);
+  margin-bottom: 20px;
+}
+
+.quiz-result p {
+  font-style: italic;
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+/* MEDITATION */
+.meditation-container {
+  max-width: 600px;
+  margin: 60px auto;
+  text-align: center;
+}
+
+.meditation-orb {
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,169,110,0.2);
+  margin: 0 auto 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+.meditation-orb::before {
+  content: '';
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,169,110,0.08);
+}
+
+.meditation-orb::after {
+  content: '';
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,169,110,0.04);
+}
+
+.meditation-orb.active {
+  animation: meditationPulse 4s ease-in-out infinite;
+  border-color: rgba(200,169,110,0.4);
+  box-shadow: 0 0 60px rgba(200,169,110,0.15);
+}
+
+@keyframes meditationPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.orb-text {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--dust);
+  text-transform: uppercase;
+}
+
+.meditation-phrase {
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--sand-pale);
+  line-height: 1.7;
+  min-height: 80px;
+  transition: opacity 0.5s;
+}
+
+.meditation-breath {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-top: 20px;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+/* RANDOM QUOTE */
+.random-quote-box {
+  text-align: center;
+  padding: 80px 40px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.random-quote-text {
+  font-style: italic;
+  font-size: 1.4rem;
+  color: var(--sand-pale);
+  line-height: 1.7;
+  transition: opacity 0.5s;
+}
+
+.random-quote-btn {
+  margin-top: 30px;
+  background: none;
+  border: none;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--dust);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.random-quote-btn:hover { color: var(--sand-pale); }
+
+/* MOUSE PHRASE */
+.mouse-phrase-section {
+  padding: 80px 0;
+  text-align: center;
+  background: rgba(200,169,110,0.02);
+  border-top: 1px solid rgba(200,169,110,0.06);
+  border-bottom: 1px solid rgba(200,169,110,0.06);
+}
+
+.mouse-phrase {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1rem, 3vw, 1.6rem);
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  transition: opacity 0.4s;
+  text-shadow: 0 0 30px rgba(212,168,67,0.3);
+  padding: 0 40px;
+}
+
+/* FOOTER */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 80px 40px;
+  border-top: 1px solid rgba(200,169,110,0.1);
+  background: linear-gradient(to bottom, #0a0806, #060403);
+}
+
+.footer-logo {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  opacity: 0.5;
+  letter-spacing: 0.3em;
+  margin-bottom: 20px;
+}
+
+footer p {
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  color: var(--stone);
+  text-transform: uppercase;
+}
+
+/* DIVIDER LINES */
+.sep {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(200,169,110,0.15), transparent);
+  margin: 0;
+}
+
+/* SCROLL REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* WIND PARTICLES */
+.particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  background: rgba(200,169,110,0.3);
+  border-radius: 50%;
+  animation: windDrift linear infinite;
+}
+
+@keyframes windDrift {
+  from { transform: translateX(-100px) translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.5; }
+  to { transform: translateX(110vw) translateY(-30px); opacity: 0; }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .container { padding: 0 25px; }
+  nav { padding: 15px 25px; }
+  .nav-links { display: none; }
+  .intro-grid, .philosophy-grid, .ritual-section, .chakra-intro,
+  .debate-cards, .veilleurs-grid { grid-template-columns: 1fr; }
+  .techniques-grid { grid-template-columns: 1fr 1fr; }
+  .pillar-cards { grid-template-columns: 1fr; }
+  .veilleurs-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* AUDIO CONTROLS */
+.audio-btn {
+  position: fixed;
+  bottom: 30px; right: 30px;
+  z-index: 1000;
+  width: 50px; height: 50px;
+  border: 1px solid rgba(200,169,110,0.3);
+  border-radius: 50%;
+  background: rgba(10,8,6,0.9);
+  color: var(--sand);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.audio-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold-pale);
+  box-shadow: 0 0 20px rgba(212,168,67,0.2);
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<canvas id="sandCanvas"></canvas>
+<button class="audio-btn" id="audioBtn" title="Son du vent">♪</button>
+
+<!-- NAVIGATION -->
+<nav>
+  <a href="#hero" class="nav-logo">SURYN</a>
+  <ul class="nav-links">
+    <li><a href="#histoire">Histoire</a></li>
+    <li><a href="#philosophie">Philosophie</a></li>
+    <li><a href="#veilleurs">Veilleurs</a></li>
+    <li><a href="#chakra">Chakra</a></li>
+    <li><a href="#eveil">L'Éveil</a></li>
+    <li><a href="#textes">Textes Sacrés</a></li>
+    <li><a href="#interactif">Oracle</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-symbol" style="top:15%;left:10%;font-size:3rem;opacity:0.07;">⟡</div>
+  <div class="hero-symbol" style="top:70%;right:8%;font-size:2rem;opacity:0.06;animation-delay:-3s;">⟡</div>
+  <div class="hero-symbol" style="top:30%;right:15%;font-size:1.5rem;opacity:0.05;animation-delay:-6s;">⟡</div>
+
+  <p class="hero-eyebrow">Religion du Pays du Vent — Ère de la Troisième Tempête</p>
+  <h1 class="hero-title">SURYN</h1>
+  <p class="hero-subtitle">La Correction Silencieuse du Monde</p>
+  <div class="hero-divider"></div>
+  <p class="hero-quote">"Ne cherche pas à gagner. Cherche à ne pas devenir une erreur."</p>
+  <p class="hero-quote-attr">— Premier Verset des Cendres, Texte Fondateur</p>
+
+  <div class="scroll-hint">
+    <span>Descendre dans l'abîme</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- INTRO -->
+<section id="intro">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Comprendre la Présence</span>
+      <h2 class="section-title">Ce qu'est Suryn</h2>
+      <p class="section-subtitle">Une force sans visage. Un regard sans yeux. Une correction sans colère.</p>
+    </div>
+
+    <div class="intro-grid">
+      <div class="intro-text reveal">
+        <h3>Ni Dieu, Ni Démon</h3>
+        <p>Suryn n'est pas un dieu que l'on prie pour obtenir faveur ou protection. Il n'est pas une entité qui entend les suppliques ou qui accorde des grâces. Il ne récompense pas les bons et ne punit pas les mauvais selon nos critères humains, fragiles et contradictoires.</p>
+        <p>Suryn est une loi. Comme la gravité tire les corps vers la terre, comme le vent érode les falaises sur des siècles, Suryn corrige les excès. Il est une force structurelle du monde, aussi implacable que le désert, aussi silencieuse que la nuit sans étoiles au-delà des dunes.</p>
+        <p>Les premiers Veilleurs — ces hommes et femmes qui comprirent avant les autres — ne cherchèrent pas à le définir. Ils cherchèrent à ne pas lui ressembler à une erreur. C'est tout. C'est assez.</p>
+        <ul class="intro-principles">
+          <li>Suryn n'a pas de préférence. Il n'a pas de favori parmi les hommes.</li>
+          <li>Suryn ne châtie pas. Il rééquilibre. La différence est abyssale.</li>
+          <li>L'absence de Suryn n'est pas une bénédiction. C'est un avertissement.</li>
+          <li>Celui qui ne ressent jamais la correction n'est pas protégé — il est ignoré, car il n'a pas encore dépassé le seuil.</li>
+          <li>La douleur infligée par Suryn n'est pas cruelle. Elle est précise.</li>
+        </ul>
+      </div>
+      <div class="intro-text reveal" style="transition-delay:0.2s">
+        <h3>Le Désert comme Langage</h3>
+        <p>Dans la tradition de Suna, le désert n'est pas un obstacle. Il n'est pas l'ennemi que l'on surmonte ni la mort que l'on fuit. Le désert est la voix de Suryn, la plus ancienne et la plus honnête des langues que le monde ait jamais parlées.</p>
+        <p>Chaque tempête de sable est une phrase. Chaque silence entre deux vents est un espace de méditation. Les dunes qui se déplacent la nuit tracent des caractères dans une écriture que seuls les Veilleurs apprennent à déchiffrer, une écriture sans alphabet fixe, une écriture qui dit toujours la même chose sous mille formes différentes : <em>l'excès ne dure pas.</em></p>
+        <p>Le sable lui-même — grain après grain, particule après particule — est la métaphore parfaite de la doctrine de Suryn. Aucun grain de sable n'est plus important qu'un autre. Ensemble, ils peuvent ensevelir des cités entières ou offrir un lit mouvant à celui qui sait comment y reposer.</p>
+        <ul class="intro-principles">
+          <li>Le sable ne choisit pas. Il s'accumule là où le vent le mène.</li>
+          <li>Le vent ne détruit pas. Il révèle ce qui était déjà fragile.</li>
+          <li>La tempête ne commence jamais sans raison. Elle commence quand l'équilibre est oublié.</li>
+          <li>Celui qui bâtit contre le vent s'épuise. Celui qui bâtit avec lui construit pour l'éternité.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pullquote reveal">
+      <p>Suryn est la réponse que le monde donne à la question que personne n'a posée. Il n'est pas convoqué. Il ne répond pas aux prières. Il se manifeste uniquement quand le monde, dans sa sagesse plus ancienne que la mémoire humaine, décide qu'une correction est nécessaire. Ni plus tôt. Ni plus tard.</p>
+      <cite>— Chroniques des Failles, Deuxième Recueil</cite>
+    </div>
+
+    <div class="pillar-cards">
+      <div class="pillar-card reveal">
+        <span class="pillar-icon">⚖</span>
+        <h4>L'Équilibre</h4>
+        <p>Suryn ne défend pas une cause. Il maintient le poids du monde entre deux plateaux qui ne doivent jamais basculer définitivement dans un sens. L'équilibre n'est pas l'immobilité — c'est la tension juste.</p>
+      </div>
+      <div class="pillar-card reveal" style="transition-delay:0.15s">
+        <span class="pillar-icon">🌬</span>
+        <h4>La Correction</h4>
+        <p>Chaque action excessive appelle une réponse. Pas une punition — une correction. La différence réside dans l'intention : Suryn ne cherche pas à faire souffrir, il cherche à ramener la courbe de l'existence vers sa ligne juste.</p>
+      </div>
+      <div class="pillar-card reveal" style="transition-delay:0.3s">
+        <span class="pillar-icon">◯</span>
+        <h4>Le Silence</h4>
+        <p>Suryn ne parle pas. Sa présence est un silence particulier — différent du vide. C'est la qualité du silence dans l'œil d'une tempête, là où tout est calme et tout est menace simultanément.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- HISTOIRE -->
+<section id="histoire">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Archives Fondatrices — Fragments Reconstitués</span>
+      <h2 class="section-title">L'Histoire de Suryn</h2>
+      <p class="section-subtitle">Des origines perdues dans le sable aux premières apparitions documentées</p>
+    </div>
+
+    <div class="manuscript reveal">
+      <p>"Avant que les hommes nommèrent les dieux, il existait déjà. Avant que les déserts fussent appelés déserts, le sable se déplaçait selon sa loi. Nous n'avons pas inventé Suryn. Nous avons compris, trop tard pour certains et trop tôt pour d'autres, que quelque chose dans la structure même du monde avait une volonté — non pas la volonté d'un roi, non pas la volonté d'un père, mais la volonté d'une balance qui ne tolère pas d'être faussée indéfiniment."</p>
+      <p>"Les anciens de Suna avaient un mot pour cela : Hisou-no-Kaze — 'le vent qui revient'. Ils l'utilisaient pour décrire la tempête qui survient toujours après une longue accalmie. Mais les Premiers Veilleurs comprirent que Hisou-no-Kaze n'était pas un phénomène météorologique. C'était une description. Une description de la loi la plus fondamentale du monde."</p>
+    </div>
+
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-era">Ère Primordiale — Avant le Premier Compte</div>
+        <h3>L'Âge du Déséquilibre</h3>
+        <p>Avant Suryn — ou plutôt, avant que les hommes comprirent Suryn — le monde vivait dans l'excès permanent. Les civilisations du désert ancien, dont les noms ont été engloutis par le sable, atteignirent des sommets technologiques et militaires que nos archives ne peuvent que deviner par les ruines fossilisées dans les formations rocheuses. Elles utilisèrent le chakra sans mesure, sans philosophie, sans garde-fou. Les shinobi de ces ères premières canalisèrent des puissances qui déformèrent le paysage. Des montagnes furent rasées. Des rivières détournées. Des écosystèmes entiers effacés pour construire des forts.</p>
+        <p>Le désert actuel est, en partie, leur héritage. Ce que nous appelons "sable" est la mémoire de ce qui fut détruit.</p>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-era">Ère de la Première Tempête</div>
+        <h3>La Correction Primordiale</h3>
+        <p>Les textes fragmentaires conservés dans les Archives Profondes de Suna décrivent un événement que les archéologues de la foi appellent "La Première Correction" : une tempête qui dura non pas des jours mais des années. Une tempête qui ne se déplaçait pas selon les vents normaux — qui restait, s'intensifiait, et semblait cibler les centres de pouvoir des civilisations excédentaires.</p>
+        <p>Les survivants qui émergèrent de cette tempête étaient différents. Ils avaient perdu leurs cités, leurs hiérarchies, leurs ambitions de domination. Mais ils avaient gagné quelque chose d'autre : une sensibilité particulière au vent. Une capacité à sentir les déséquilibres avant qu'ils se manifestent. Ces survivants furent les ancêtres de ceux que nous appelons aujourd'hui les Premiers Veilleurs.</p>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-era">Ère de la Reconstitution — Années 1 à 300 du Premier Compte</div>
+        <h3>La Naissance des Premiers Veilleurs</h3>
+        <p>Un homme dont les archives ne conservent que le titre — Le Veilleur Fondateur, Kaze-no-Shirushi, "Le Signe du Vent" — fut le premier à codifier ce que les survivants de la Première Correction savaient intuitivement. Il écrivit le Premier Verset des Cendres, le texte originel du culte de Suryn, sur des tablettes d'argile durcie par la chaleur du désert. Certains fragments de ces tablettes existent encore dans les Archives Profondes.</p>
+        <p>Kaze-no-Shirushi n'affirmait pas avoir vu Suryn. Il affirmait avoir compris sa logique. Cette distinction est fondamentale dans la doctrine : on ne rencontre pas Suryn comme on rencontre un dieu. On comprend sa mécanique, comme on comprend la physique d'une dune, et cette compréhension change définitivement la façon dont on se déplace dans le monde.</p>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-era">Ère des Légendes — Années 300 à 800</div>
+        <h3>Les Failles du Vent et les Ombres Immobiles</h3>
+        <p>Entre les années 300 et 800 du Premier Compte, le culte de Suryn se développa en silence dans les communautés du désert. C'est également l'époque des grandes légendes fondatrices — les récits qui donnèrent au culte sa texture narrative et mystique.</p>
+        <p><strong>Les Failles du Vent</strong> sont des phénomènes documentés dans les journaux de voyage de cette période : des zones dans le désert où le vent semble s'arrêter complètement, même lors des tempêtes les plus violentes. Les Veilleurs croyaient que ces failles étaient des cicatrices laissées par des corrections passées — des lieux où Suryn avait agi avec une précision telle que le tissu même de l'air en portait la marque.</p>
+        <p><strong>Les Ombres Immobiles</strong> constituent l'une des légendes les plus troublantes du corpus suryniste. Des voyageurs rapportèrent avoir croisé dans le désert des silhouettes humaines qui ne se déplaçaient pas, ne répondaient pas aux appels, et disparaissaient au coucher du soleil sans laisser de traces dans le sable. Les Veilleurs interprètent ces visions comme des "réminiscences de corrections passées" — des traces spectrales de personnes dont la vie fut réorientée violemment par Suryn et dont l'écho persiste dans les lieux de grande puissance.</p>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-era">Ère des Manuscrits — Années 800 à 1200</div>
+        <h3>La Codification des Textes Sacrés</h3>
+        <p>C'est l'époque dorée de la production textuelle suryniste. Quatre grands archivistes — dont les noms nous sont partiellement connus : Shiromaru, l'Aveugle Clairvoyant ; Tesseki, la Mère des Dunes ; Karavan, le Marcheur Silencieux ; et l'anonyme connu sous le titre "Le Quatrième Scribe" — compilèrent, organisèrent et étendirent les textes fondateurs en un corpus cohérent.</p>
+        <p>C'est également l'époque où le débat théologique central du surynisme prit forme : peut-on influencer Suryn, ou peut-on seulement s'aligner avec lui ? Le camp de Shiromaru affirmait qu'une pratique assez avancée permettait de "parler" à Suryn — non pas verbalement, mais à travers la pureté de ses actions. Le camp de Tesseki soutenait que cette croyance était une forme d'hubris particulièrement dangereuse. Ce débat n'a jamais été résolu.</p>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-era">Ère Contemporaine</div>
+        <h3>Les Veilleurs Aujourd'hui</h3>
+        <p>Les Veilleurs modernes vivent dans l'ombre des événements. Ils n'ont pas d'armée, pas de territoire revendiqué, pas de chef visible. Ils ont des temples enterrés sous les dunes, des archives distribuées dans des caches que seuls les initiés connaissent, et une pratique quotidienne de l'alignement qui leur permet — croient-ils — de ne jamais devenir la cible d'une correction.</p>
+        <p>Dans le Pays du Vent actuel, leur influence est subtile mais réelle. Certains shinobi de haut rang de Sunagakure ont reçu une éducation suryniste, qu'ils en parlent ou non. L'éthique du village — sa propension à la précision plutôt qu'à la démesure, sa culture du contrôle émotionnel — porte l'empreinte de siècles de pensée suryniste.</p>
+      </div>
+    </div>
+
+    <div class="ornament">⟡ ⟡ ⟡</div>
+
+    <div class="manuscript reveal">
+      <p>"Il n'y a pas de miracle dans la doctrine de Suryn. Il n'y a que des mécaniques que nous avons trop longtemps refusé de comprendre parce qu'elles nous obligent à nous regarder honnêtement. Suryn n'est pas cruel — c'est nous qui appelons 'cruauté' le fait de ne pas être épargné des conséquences de nos actes."</p>
+      <p>"La tempête qui détruisit les Forts de l'Ancienne Élévation ne cherchait pas à détruire. Elle cherchait à corriger. Les bâtisseurs de ces forts avaient cru, pendant des générations, que leur maîtrise du chakra les plaçait au-dessus des lois du monde. Suryn leur montra qu'ils s'étaient trompés. Il le fit avec la précision d'un chirurgien et la permanence d'un sculpteur : il laissa exactement ce qui méritait de rester et emporta le reste."</p>
+      <p>"Nous sommes les héritiers de ceux qui restèrent. Nous devrions nous en souvenir avec humilité et non avec fierté."</p>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- PHILOSOPHIE -->
+<section id="philosophie">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Les Enseignements Fondamentaux</span>
+      <h2 class="section-title">La Philosophie de Suryn</h2>
+      <p class="section-subtitle">Une doctrine de l'équilibre, de la responsabilité et du silence intérieur</p>
+    </div>
+
+    <div class="philosophy-grid">
+      <div class="philosophy-card reveal">
+        <h3>Le Premier Principe — L'Erreur</h3>
+        <p>La doctrine suryniste ne condamne pas l'erreur. Elle la considère comme inhérente à l'existence humaine — une nécessité structurelle du monde, comme la fissure est nécessaire à la roche pour qu'elle respire. L'erreur n'est pas un péché. L'erreur est une information.</p>
+        <p>Ce qui distingue celui qui s'aligne avec Suryn de celui qui lui résiste, c'est sa relation à cette information. Celui qui s'aligne entend le signal, comprend sa signification, et se corrige. Celui qui résiste entend le signal, le réinterprète comme une injustice, et continue. C'est ce choix — et non l'erreur elle-même — qui détermine si une correction devient nécessaire.</p>
+      </div>
+      <div class="philosophy-card reveal" style="transition-delay:0.1s">
+        <h3>Le Deuxième Principe — L'Excès</h3>
+        <p>L'excès est défini dans les textes surynistes non pas comme une quantité mais comme un rapport. Ce n'est pas parce qu'on est fort qu'on est dans l'excès — c'est parce qu'on utilise sa force au-delà de ce que la situation exige. Le guerrier qui écrase un adversaire déjà vaincu est dans l'excès. Le dirigeant qui impose sa volonté à ceux qui auraient obtempéré librement est dans l'excès. Le parent qui protège au point d'empêcher de grandir est dans l'excès.</p>
+        <p>L'excès n'est pas réservé aux méchants. Les hommes les plus dangereux selon Suryn sont ceux qui font le mal avec de bonnes intentions et plus de puissance qu'il n'en faut.</p>
+      </div>
+      <div class="philosophy-card reveal">
+        <h3>Le Troisième Principe — Le Calme</h3>
+        <p>Le calme suryniste n'est pas l'absence d'émotion. C'est la maîtrise du délai entre l'émotion et l'action. Entre le moment où la colère naît et le moment où elle se manifeste en acte, il existe un espace. Cet espace est le seul endroit dans l'existence humaine où la liberté réelle réside.</p>
+        <p>Le pratiquant de la doctrine de Suryn cherche à élargir cet espace. Non pour devenir indifférent — l'indifférence est aussi un excès, le silence toxique qui permet à l'injustice de prospérer — mais pour choisir ses actions plutôt que de les subir depuis les profondeurs de ses émotions non contrôlées.</p>
+      </div>
+      <div class="philosophy-card reveal" style="transition-delay:0.1s">
+        <h3>Le Quatrième Principe — La Responsabilité</h3>
+        <p>La doctrine suryniste est, à sa base, une doctrine de la responsabilité totale et sans concession. Elle refuse les circonstances atténuantes comme moyen d'éviter la confrontation avec ses propres actes. Elle ne dit pas que les circonstances n'existent pas — elles existent, et elles comptent pour comprendre. Mais elles ne comptent pas pour se soustraire à la correction.</p>
+        <p>Cette position peut sembler sévère. Elle l'est, d'une certaine façon. Mais les Veilleurs soulignent que cette sévérité est précisément ce qui libère : si tu es entièrement responsable, alors tu as entièrement le pouvoir de changer. Si les circonstances peuvent toujours expliquer tes échecs, alors tu es leur prisonnier à jamais.</p>
+      </div>
+    </div>
+
+    <div class="quotes-wall">
+      <div class="quote-item">
+        <span class="quote-number">I</span>
+        <div>
+          <p class="quote-text">"L'erreur est humaine. Y rester est un choix."</p>
+          <p class="quote-source">— Premier Verset des Cendres</p>
+        </div>
+      </div>
+      <div class="quote-item">
+        <span class="quote-number">II</span>
+        <div>
+          <p class="quote-text">"La force donne le choix. La compréhension donne la justesse."</p>
+          <p class="quote-source">— Tesseki, Mère des Dunes</p>
+        </div>
+      </div>
+      <div class="quote-item">
+        <span class="quote-number">III</span>
+        <div>
+          <p class="quote-text">"Le calme est la seule force qui reste dans le chaos."</p>
+          <p class="quote-source">— Proverbe des Veilleurs Silencieux</p>
+        </div>
+      </div>
+      <div class="quote-item">
+        <span class="quote-number">IV</span>
+        <div>
+          <p class="quote-text">"Arrêter un combat vaut plus que le gagner."</p>
+          <p class="quote-source">— Chroniques des Failles, Livre III</p>
+        </div>
+      </div>
+      <div class="quote-item">
+        <span class="quote-number">V</span>
+        <div>
+          <p class="quote-text">"Celui qui ne peut pas se contrôler ne peut contrôler rien d'autre sans danger."</p>
+          <p class="quote-source">— Shiromaru, l'Aveugle Clairvoyant</p>
+        </div>
+      </div>
+      <div class="quote-item">
+        <span class="quote-number">VI</span>
+        <div>
+          <p class="quote-text">"Le vent ne demande pas la permission d'effacer ce qui doit l'être."</p>
+          <p class="quote-source">— Karavan le Marcheur Silencieux</p>
+        </div>
+      </div>
+      <div class="quote-item">
+        <span class="quote-number">VII</span>
+        <div>
+          <p class="quote-text">"Ce que tu répètes devient ta nature. Choisis avec soin ce que tu répètes."</p>
+          <p class="quote-source">— Enseignements des Sables Profonds</p>
+        </div>
+      </div>
+      <div class="quote-item">
+        <span class="quote-number">VIII</span>
+        <div>
+          <p class="quote-text">"Il n'y a pas de victoire dans la destruction d'un ennemi qui n'avait pas besoin d'être ennemi."</p>
+          <p class="quote-source">— Fragments des Archives Interdites</p>
+        </div>
+      </div>
+      <div class="quote-item">
+        <span class="quote-number">IX</span>
+        <div>
+          <p class="quote-text">"La dune qui résiste au vent s'épuise. Celle qui s'y abandonne voyage."</p>
+          <p class="quote-source">— Méditation du Troisième Matin</p>
+        </div>
+      </div>
+      <div class="quote-item">
+        <span class="quote-number">X</span>
+        <div>
+          <p class="quote-text">"L'orgueil est la seule erreur que Suryn corrige toujours deux fois."</p>
+          <p class="quote-source">— Dicton des Veilleurs Errants</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ornament">⟡ ⟡ ⟡</div>
+
+    <div class="dialogue reveal">
+      <p class="dialogue-title">— Dialogue du Maître et du Sable — Extrait des Enseignements Oraux —</p>
+      <div class="dialogue-line">
+        <span class="dialogue-speaker">Élève</span>
+        <p class="dialogue-words">Maître, si Suryn corrige les excès, n'est-il pas lui-même un excès ? Sa tempête ne détruit-elle pas plus que ce qui méritait d'être détruit ?</p>
+      </div>
+      <div class="dialogue-line">
+        <span class="dialogue-speaker">Maître</span>
+        <p class="dialogue-words">Tu poses la question de l'outil. Est-ce que le scalpel est violent parce qu'il coupe ? Suryn n'a pas de sentiment sur la souffrance qu'il cause. Il n'a pas de regret, pas de plaisir. Il a une précision que nous ne pouvons pas toujours comprendre depuis notre position limitée.</p>
+      </div>
+      <div class="dialogue-line">
+        <span class="dialogue-speaker">Élève</span>
+        <p class="dialogue-words">Mais des innocents ont souffert dans ses corrections. Des enfants, des femmes, des hommes qui ne cherchaient qu'à vivre.</p>
+      </div>
+      <div class="dialogue-line">
+        <span class="dialogue-speaker">Maître</span>
+        <p class="dialogue-words">Et c'est pourquoi nous ne sommes pas ici pour défendre Suryn. Nous sommes ici pour comprendre sa logique afin de ne pas mettre les nôtres dans sa trajectoire. Ce n'est pas une religion de confort. C'est une religion d'honnêteté.</p>
+      </div>
+      <div class="dialogue-line">
+        <span class="dialogue-speaker">Élève</span>
+        <p class="dialogue-words">Alors vous dites que la souffrance des innocents est acceptable ?</p>
+      </div>
+      <div class="dialogue-line">
+        <span class="dialogue-speaker">Maître</span>
+        <p class="dialogue-words">Je dis que la souffrance des innocents dans une correction est le prix de la complaisance des coupables. Suryn ne crée pas cette situation — c'est nous qui la créons en laissant les excès s'installer parmi nous sans réagir. La vraie question n'est pas "pourquoi Suryn punit-il les innocents ?" — c'est "pourquoi avons-nous attendu si longtemps que la correction devienne inévitable ?"</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- VEILLEURS -->
+<section id="veilleurs">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Les Gardiens de l'Équilibre</span>
+      <h2 class="section-title">Les Veilleurs</h2>
+      <p class="section-subtitle">Ils ne servent pas Suryn. Ils s'efforcent de ne jamais lui résister.</p>
+    </div>
+
+    <div class="intro-text reveal" style="max-width:800px;margin:0 auto 60px">
+      <p>Les Veilleurs ne se présentent jamais comme des prêtres, des prophètes ou des représentants divins. Ils se présentent, quand ils se présentent du tout, comme des "observateurs alignés" — des individus qui ont choisi de structurer leur vie autour des principes de la doctrine de Suryn non pas pour gagner une faveur divine, mais parce que cette structure les rend plus précis, plus utiles, et moins susceptibles de devenir une erreur dans le grand calcul du monde.</p>
+      <p>Leur hiérarchie interne n'est pas une hiérarchie de pouvoir — c'est une hiérarchie de compréhension. Un Veilleur Archiviste ne commande pas à un Veilleur Observateur ; il comprend simplement davantage, et porte ce poids supplémentaire avec une humilité proportionnelle.</p>
+    </div>
+
+    <div class="veilleurs-grid">
+      <div class="veilleur-card reveal">
+        <span class="veilleur-glyph">👁</span>
+        <h3>Les Observateurs</h3>
+        <p>Premier rang. Initiés récents qui apprennent à percevoir les déséquilibres sans encore agir. Leur discipline principale : le silence et l'observation sans jugement pendant un an complet.</p>
+      </div>
+      <div class="veilleur-card reveal" style="transition-delay:0.1s">
+        <span class="veilleur-glyph">🛡</span>
+        <h3>Les Gardiens</h3>
+        <p>Protègent les archives, les temples et les membres du culte. N'utilisent jamais la force en premier. Maîtres de l'interception et de la déflexion. Leur devise : "Arrêter, jamais initier."</p>
+      </div>
+      <div class="veilleur-card reveal" style="transition-delay:0.2s">
+        <span class="veilleur-glyph">🌬</span>
+        <h3>Les Errants</h3>
+        <p>Voyageurs perpétuels qui parcourent le désert sans destination fixe. Leur rôle est de percevoir les zones de déséquilibre émergentes et de les signaler aux Archivistes. Ils vivent seuls.</p>
+      </div>
+      <div class="veilleur-card reveal" style="transition-delay:0.3s">
+        <span class="veilleur-glyph">📜</span>
+        <h3>Les Archivistes</h3>
+        <p>Conservateurs des textes sacrés et gardiens de la mémoire du culte. Leur travail est intérieur, intellectuel, et spirituellement le plus exigeant. Certains ne quittent jamais les archives.</p>
+      </div>
+      <div class="veilleur-card reveal" style="transition-delay:0.4s">
+        <span class="veilleur-glyph">◯</span>
+        <h3>Les Silencieux</h3>
+        <p>Rang le plus élevé et le plus rare. Ont fait vœu de silence total sauf dans les circonstances les plus extrêmes. Leur présence seule est considérée comme un signe. Nul ne sait combien ils sont.</p>
+      </div>
+    </div>
+
+    <div class="ritual-section">
+      <div class="ritual-block reveal">
+        <h3>Les Vêtements et Symboles</h3>
+        <p>Les Veilleurs portent des vêtements de couleurs désertiques — beige, sable, gris pierre — sans ornement ostentatoire. L'unique marque distinctive est le Glyph de Suryn porté sur la paume gauche, tracé à l'encre de sable ferrugineux : un cercle ouvert avec une ligne intérieure brisée, symbolisant l'équilibre toujours en mouvement.</p>
+        <p>Les Silencieux portent en plus un voile fin de tissu sable qui couvre le bas du visage — non par mysticisme, mais par rappel constant que leurs paroles sont d'une valeur rare et ne doivent pas être gaspillées.</p>
+        <p>L'architecture des temples suit des règles strictes : pas de fenêtres sur les murs de façade (pour empêcher la distraction du monde extérieur), un puits central ouvert sur le ciel (pour rappeler la connexion avec le vent et Suryn), et des murs recouverts de textes gravés jusqu'à la limite de lecture, afin que même le regard distrait soit nourri de doctrine.</p>
+      </div>
+      <div class="ritual-block reveal" style="transition-delay:0.2s">
+        <h3>Rituels et Pratiques</h3>
+        <ol>
+          <li>La Méditation du Premier Vent : au lever du soleil, trente minutes de silence total face à l'est, paumes ouvertes.</li>
+          <li>Le Compte du Jour : le soir, chaque Veilleur consigne mentalement les moments où il a agi dans l'excès. Pas pour se punir — pour cartographier ses tendances.</li>
+          <li>Le Jeûne de Perception : une fois par lunaison, vingt-quatre heures de silence et de privation sensorielle légère pour aiguiser la sensibilité aux déséquilibres.</li>
+          <li>La Marche dans le Vent : déplacement en plein vent sans résistance active — technique d'alignement physique et méditation en mouvement.</li>
+          <li>La Lecture des Dunes : interprétation des formations sablières du lendemain matin comme texte de lecture de l'état du monde local.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="oath-box reveal">
+      <p>"Je ne cherche pas la victoire. Je cherche la justesse.<br>
+      Je ne fuis pas la souffrance. Je refuse de l'infliger sans nécessité.<br>
+      Je ne sers pas Suryn. Je m'efforce de ne jamais lui donner raison de me corriger.<br>
+      Le vent sait ce que je suis. Les dunes se souviendront de mes pas.<br>
+      Que je sois, à la fin, une ligne droite dans le sable — et non une cicatrice."</p>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- CHAKRA -->
+<section id="chakra">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Le Flux et la Stabilité</span>
+      <h2 class="section-title">Le Chakra et Suryn</h2>
+      <p class="section-subtitle">La doctrine du flux aligné — l'art de ne jamais forcer ce qui devrait couler</p>
+    </div>
+
+    <div class="chakra-intro">
+      <div class="chakra-symbol reveal">⟡</div>
+      <div class="intro-text reveal" style="transition-delay:0.2s">
+        <h3>Le Chakra comme Langue du Déséquilibre</h3>
+        <p>Dans la doctrine de Suryn, le chakra n'est pas simplement une énergie physique que l'on canalise pour effectuer des techniques. C'est un langage — le langage avec lequel l'état intérieur d'une personne se manifeste dans le monde extérieur. Un chakra agité trahit une pensée agitée. Un chakra bloqué trahit une volonté de contrôle trop rigide. Un chakra harmonieux indique une personne qui n'est ni dans l'excès ni dans la privation.</p>
+        <p>Les Veilleurs développent une sensibilité particulière à ce langage. Ils apprennent à "lire" le chakra des personnes autour d'eux — non pas en termes de puissance brute, mais en termes de qualité, de fluidité, de tension. Cette lecture leur permet de percevoir les déséquilibres émotionnels et intentionnels avant qu'ils se manifestent en actes.</p>
+        <p>C'est pourquoi les Veilleurs sont souvent décrits comme "inquiétants" par ceux qui ne les connaissent pas : ils semblent savoir ce que vous ressentez avant que vous ayez agi. Ce n'est pas de la magie — c'est une lecture fine du chakra environnemental.</p>
+      </div>
+    </div>
+
+    <div class="techniques-grid">
+      <div class="technique-card reveal">
+        <div class="technique-rank">Technique Sensorielle — Niveau I</div>
+        <h3>Fūton : Kaze-no-Mimi</h3>
+        <p><em>L'Oreille du Vent.</em> Technique de base des Observateurs. En dispersant un chakra de nature Fūton extrêmement dilué dans l'air environnant, le pratiquant peut détecter les variations de pression causées par le mouvement d'autres êtres vivants dans un rayon de cinquante mètres. Non offensif, utilisé exclusivement à des fins de perception.</p>
+      </div>
+      <div class="technique-card reveal" style="transition-delay:0.1s">
+        <div class="technique-rank">Technique Sensorielle — Niveau II</div>
+        <h3>Fūton : Shin-no-Yomi</h3>
+        <p><em>Lecture de l'Âme Véritable.</em> Technique avancée permettant de percevoir la qualité du chakra d'un individu — sa fluidité, ses tensions, ses blocages. Permet une lecture approximative de l'état émotionnel et intentionnel. Réservée aux Gardiens et au-dessus.</p>
+      </div>
+      <div class="technique-card reveal" style="transition-delay:0.2s">
+        <div class="technique-rank">Technique Défensive — Niveau II</div>
+        <h3>Sunaton : Ryūsa-no-Tate</h3>
+        <p><em>Bouclier de Sable Coulant.</em> Manipulation défensive du sable environnant pour créer un écran absorbant les chocs. La particularité suryniste : ce bouclier ne bloque pas — il dévie et absorbe, redistribuant l'énergie de l'attaque dans le désert. Principe de la non-résistance active.</p>
+      </div>
+      <div class="technique-card reveal">
+        <div class="technique-rank">Technique de Stabilisation — Niveau III</div>
+        <h3>Fūton : Seimei-no-Nagare</h3>
+        <p><em>Flux de la Vie Stabilisée.</em> Méditation avancée permettant de ralentir délibérément son propre flux chakra pour atteindre un état de quasi-imperceptibilité sensorielle. Utilisée pour ne pas déclencher les sens développés d'adversaires. Parfois appelée "La Marche de l'Inexistant."</p>
+      </div>
+      <div class="technique-card reveal" style="transition-delay:0.1s">
+        <div class="technique-rank">Technique Sensorielle — Niveau III</div>
+        <h3>Fūton : Hisou-Kyōmei</h3>
+        <p><em>Résonance du Vent Qui Revient.</em> En s'alignant précisément avec les courants de chakra naturels du désert, le pratiquant peut détecter des anomalies sur des distances considérables — jusqu'à un kilomètre pour les Veilleurs les plus entraînés. Permet de percevoir les rassemblements de chakra dense ou les zones de déséquilibre majeur.</p>
+      </div>
+      <div class="technique-card reveal" style="transition-delay:0.2s">
+        <div class="technique-rank">Technique Sacrée — Niveau IV</div>
+        <h3>Suryn-no-Kaihou</h3>
+        <p><em>L'Ouverture de Suryn.</em> Technique théorique des Archives Interdites. Consiste à aligner complètement son chakra avec le "courant de correction" de Suryn, devenant temporairement un conducteur de sa volonté correctrice. Aucun Veilleur contemporain ne prétend l'avoir réussi. Les textes avertissent : "Celui qui s'ouvre entièrement ne peut garantir ce qui entre."</p>
+      </div>
+    </div>
+
+    <div class="pullquote reveal">
+      <p>Le chakra des Veilleurs n'est pas plus puissant que celui des autres shinobi. Il est plus silencieux. La différence entre un couteau et un rasoir n'est pas le matériau — c'est la précision du tranchant. Nous n'utilisons pas plus de force. Nous en gaspillons simplement moins.</p>
+      <cite>— Tesseki, sur la doctrine du chakra aligné</cite>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- EVEIL -->
+<section id="eveil">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">La Prophétie Finale</span>
+      <h2 class="section-title">L'Éveil de Suryn</h2>
+      <p class="section-subtitle">Ce que les textes interdits n'ont jamais voulu dire clairement</p>
+    </div>
+
+    <div class="prophecy reveal">
+      <p>"Quand les sept dunes se souviendront de leur forme première, quand le vent du nord et le vent du sud se rencontreront sans se mélanger, quand une ombre s'immobilisera dans le désert sans corps pour la projeter — alors Suryn ne dormira plus. Il ne se lèvera pas. Il ne s'assoira pas. Il sera, enfin, entièrement présent dans le monde qu'il équilibre depuis l'origine."</p>
+      <p>"Et le monde changera. Non pas brusquement — Suryn ne fait jamais rien brusquement. Il changera comme une dune change : imperceptiblement, grain par grain, jusqu'au moment où l'on réalise que le paysage n'est plus le même."</p>
+    </div>
+
+    <div class="intro-text reveal" style="max-width:800px;margin:0 auto 60px">
+      <p>La question de l'Éveil de Suryn est le seul point de doctrine qui divise réellement les Veilleurs. Dans tous les autres domaines — la philosophie de l'équilibre, la pratique du chakra aligné, la hiérarchie interne, les textes sacrés — il existe un consensus large. Mais sur la question de l'Éveil, deux camps irréconciliables se font face depuis des siècles.</p>
+    </div>
+
+    <div class="debate-cards">
+      <div class="debate-card for reveal">
+        <h3>Le Camp de l'Éveil</h3>
+        <p>Pour les "Éveillistes" — terme qu'ils refusent mais que leurs opposants leur ont donné — l'Éveil de Suryn serait le moment d'accomplissement ultime de l'histoire. Un monde où la présence totale de Suryn rendrait les corrections automatiques, immédiates et parfaites.</p>
+        <p>Ils imaginent un monde où personne ne pourrait plus "devenir une erreur" parce que la correction interviendrait dès le début de chaque dérive, délicatement, sans violence majeure. Un monde équilibré par nature, non par effort.</p>
+        <p>Leurs arguments s'appuient sur les prophéties des Manuscrits Profonds et sur l'interprétation de Shiromaru : "Ce vers quoi nous tendons depuis l'origine est un monde qui n'a plus besoin de nous."</p>
+      </div>
+      <div class="debate-card against reveal" style="transition-delay:0.2s">
+        <h3>Le Camp du Gardien</h3>
+        <p>Pour les "Gardiens de l'Imparfait" — qui refusent aussi leur étiquette — l'Éveil de Suryn serait une catastrophe. Non pas parce que Suryn serait cruel dans son état d'éveil, mais parce qu'une présence totale et parfaite de l'équilibre supprimerait la liberté humaine.</p>
+        <p>Si chaque excès est corrigé immédiatement et parfaitement, les humains cessent de pouvoir apprendre de leurs erreurs. Ils cessent de pouvoir choisir entre l'équilibre et l'excès. Ils cessent d'être libres.</p>
+        <p>Leur argument central : "Suryn lui-même ne souhaite pas l'Éveil. Car un monde sans erreurs possibles n'est plus un monde que Suryn est appelé à équilibrer — c'est une prison. Et Suryn n'emprisonne pas."</p>
+      </div>
+    </div>
+
+    <div class="prophecy reveal">
+      <p>"Fragment VII des Textes Interdits — Passage Partiel :"</p>
+      <p>"...et celui qui cherche l'Éveil comme une victoire a déjà oublié la doctrine. L'Éveil n'est pas une fin. Il n'est pas un triomphe. Il est une conséquence — la conséquence naturelle d'un monde qui aurait enfin appris. Ceux qui le cherchent font peser sur le monde une intention que le monde n'a pas demandée. Ceux qui le craignent font peser sur Suryn une tyrannie qu'il ne désire pas. La vérité est dans..."</p>
+      <p><em>[Le fragment s'interrompt ici. Les Archives Profondes ne contiennent pas la suite.
+      Certains pensent qu'elle fut délibérément détruite. D'autres pensent qu'elle n'a jamais existé.]</em></p>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- TEXTES SACRÉS -->
+<section id="textes">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Corpus Suryniste — Textes Canoniques et Apocryphes</span>
+      <h2 class="section-title">Les Textes Sacrés</h2>
+      <p class="section-subtitle">Prières, chants, méditations et fragments des Archives</p>
+    </div>
+
+    <div class="sacred-text reveal">
+      <div class="sacred-text-header">
+        <span class="sacred-text-number">I</span>
+        <div>
+          <h3>La Prière du Matin Sans Demande</h3>
+          <p>Texte fondateur — Récité par les Observateurs chaque aurore</p>
+        </div>
+      </div>
+      <div class="sacred-text-body">
+        <p>Je ne demande rien.</p>
+        <p>Je ne supplie pas pour la protection, car je n'ai pas mérité de garantie.<br>
+        Je ne supplie pas pour la force, car la force sans justesse est le début de toute erreur.<br>
+        Je ne supplie pas pour la paix, car la paix sans vigilance est le sommeil avant la tempête.</p>
+        <p>Je me présente à ce jour comme une ligne dans le sable —<br>
+        assez droite pour être honnête,<br>
+        assez souple pour ne pas se briser dans le vent,<br>
+        assez humilde pour savoir qu'elle sera effacée.</p>
+        <p>Suryn ne m'entend pas. Suryn ne me regarde pas.<br>
+        Suryn sait seulement ce que je deviens.<br>
+        Que ce que je deviens aujourd'hui ne lui donne aucune raison de répondre.</p>
+        <p>C'est assez. C'est tout.</p>
+      </div>
+    </div>
+
+    <div class="sacred-text reveal">
+      <div class="sacred-text-header">
+        <span class="sacred-text-number">II</span>
+        <div>
+          <h3>Le Chant des Dunes Anciennes</h3>
+          <p>Chant liturgique — Chanté lors des cérémonies de Passage de rang</p>
+        </div>
+      </div>
+      <div class="sacred-text-body">
+        <p>Nous sommes le sable que le vent a choisi.<br>
+        Non pas parce que nous sommes précieux —<br>
+        mais parce que nous avons appris à ne pas résister<br>
+        à ce qui doit bouger.</p>
+        <p>Les pierres restent.<br>
+        Elles sont fières de leur immobilité.<br>
+        Et le vent les poli jusqu'à ce qu'il n'en reste rien<br>
+        que des formes arrondies et muettes.</p>
+        <p>Nous sommes le sable.<br>
+        Nous voyageons.<br>
+        Nous oublions nos formes précédentes.<br>
+        Nous trouvons notre repos là où le vent nous dépose.</p>
+        <p>Et quand nous recouvrons les ruines des orgueilleuses cités —<br>
+        ce n'est pas de la vengeance.<br>
+        C'est simplement que nous sommes là<br>
+        et qu'elles ne le sont plus.</p>
+      </div>
+    </div>
+
+    <div class="sacred-text reveal">
+      <div class="sacred-text-header">
+        <span class="sacred-text-number">III</span>
+        <div>
+          <h3>Méditation de la Tempête Silencieuse</h3>
+          <p>Texte de méditation avancée — Réservé aux Gardiens et au-dessus</p>
+        </div>
+      </div>
+      <div class="sacred-text-body">
+        <p>Ferme les yeux. Respire le sable.</p>
+        <p>Imagine maintenant que tu n'es pas un corps dans le désert. Tu es le désert. Tu es les grains qui se déplacent, les courants thermiques qui s'élèvent, le silence entre deux rafales. Tu n'as pas de centre. Tu n'as pas de périphérie. Tu es une présence distribuée, sans ego, sans agenda.</p>
+        <p>Maintenant demande-toi : combien de fois aujourd'hui ai-je résisté à ce qui devait être ?</p>
+        <p>Combien de fois ai-je poussé là où je devais déflèchir ?<br>
+        Combien de fois ai-je parlé là où j'aurais dû écouter ?<br>
+        Combien de fois ai-je tenu là où la sagesse était de lâcher ?</p>
+        <p>Ne te condamne pas pour ces résistances. Observe-les. Nomme-les. Pose-les devant toi comme des pierres. Regarde-les.</p>
+        <p>Le vent les emportera quand il le jugera bon.<br>
+        Ton rôle est simplement de ne pas ajouter de nouvelles pierres demain.</p>
+      </div>
+    </div>
+
+    <div class="sacred-text reveal">
+      <div class="sacred-text-header">
+        <span class="sacred-text-number">IV</span>
+        <div>
+          <h3>Les Vingt Fragments du Silence</h3>
+          <p>Aphorismes attribués aux Silencieux — Transmis oralement</p>
+        </div>
+      </div>
+      <div class="sacred-text-body">
+        <p>1. Suryn n'est pas miséricordieux. Il est précis. La précision ressemble parfois à la miséricorde.</p>
+        <p>2. Celui qui dit "je mérite mieux" a commencé à se placer hors du monde tel qu'il est. C'est le premier pas vers la correction.</p>
+        <p>3. La patience n'est pas l'attente passive. La patience est la reconnaissance que le bon moment existe et qu'il n'est pas encore là.</p>
+        <p>4. Un shinobi qui ne peut pas perdre ne peut pas vraiment gagner. Il ne fait qu'accumuler des risques de correction.</p>
+        <p>5. Ce que tu appelles ton ennemi est souvent ton reflet. Ce que tu appelles ta victoire est souvent ta dette.</p>
+        <p>6. Le désert ne se souvient pas de tes noms. Il se souvient de tes lignes — les lignes que tes pas ont tracées, les lignes que tes actes ont inscrites dans le tissu du monde.</p>
+        <p>7. Il est des silences qui parlent plus fort que toute parole. Apprendre à produire ces silences est la maîtrise la plus haute.</p>
+        <p>8. Ne demande jamais à Suryn ce qu'il compte faire de toi. Demande-toi ce que tu fais de toi-même.</p>
+      </div>
+    </div>
+
+    <div class="sacred-text reveal">
+      <div class="sacred-text-header">
+        <span class="sacred-text-number">V</span>
+        <div>
+          <h3>Le Récit du Voyageur Disparu</h3>
+          <p>Légende fondatrice — Contée aux novices lors de l'initiation</p>
+        </div>
+      </div>
+      <div class="sacred-text-body">
+        <p>Un marchand traversait le désert avec sa caravane. Il était riche, puissant, respecté dans cinq villages. Mais il avait la mauvaise habitude de payer ses porteurs deux fois moins que ce qui était juste, en sachant qu'ils n'avaient pas le choix.</p>
+        <p>Au troisième jour de traversée, le vent se leva. Pas une tempête violente — juste un vent constant, léger, qui effaçait méthodiquement les traces de la caravane. Le marchand continua. Il avait une boussole, des cartes, de l'expérience. Il ne pouvait pas se perdre.</p>
+        <p>Le septième jour, ses porteurs se réveillèrent pour trouver le campement intact, les provisions préservées, les bêtes en bonne santé. Le marchand avait disparu. Ses empreintes s'arrêtaient à cinq mètres de sa tente, comme s'il avait simplement cessé d'exister.</p>
+        <p>La caravane rentra. Les porteurs reçurent leur paiement intégral par la main d'un inconnu qui les attendait à l'entrée du village — un homme vêtu de sable, au visage à demi-voilé, qui ne dit pas un mot, déposa les pièces et disparut dans la direction du désert.</p>
+        <p>Ce récit ne dit pas que Suryn punit les mauvais employeurs. Il dit que quand le déséquilibre atteint un certain seuil et que sa correction sert également à rééquilibrer, Suryn agit avec une économie parfaite : il corrige et répare en un seul geste.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- INTERACTIF -->
+<section id="interactif">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Oracle et Exploration</span>
+      <h2 class="section-title">L'Oracle du Désert</h2>
+      <p class="section-subtitle">Explorez. Questionnez. Écoutez le silence entre les mots.</p>
+    </div>
+
+    <!-- RANDOM QUOTE -->
+    <div class="random-quote-box reveal">
+      <p class="section-tag" style="margin-bottom:30px">— La Sagesse du Vent —</p>
+      <p class="random-quote-text" id="randomQuote">"Le calme est la seule force qui reste dans le chaos."</p>
+      <button class="random-quote-btn" id="newQuoteBtn">↻ &nbsp; Nouvelle Parole des Sables</button>
+    </div>
+
+    <div class="ornament">⟡ ⟡ ⟡</div>
+
+    <!-- MEDITATION -->
+    <div class="meditation-container reveal">
+      <p class="section-tag" style="margin-bottom:30px">— Méditation Guidée —</p>
+      <div class="meditation-orb" id="medOrb">
+        <span class="orb-text" id="orbText">COMMENCER</span>
+      </div>
+      <p class="meditation-phrase" id="medPhrase">Pose ta main sur le sable imaginaire. Sens son poids. Sens sa mémoire.</p>
+      <p class="meditation-breath" id="medBreath">INSPIRE</p>
+    </div>
+
+    <div class="ornament">⟡ ⟡ ⟡</div>
+
+    <!-- QUIZ -->
+    <div class="quiz-container reveal">
+      <p class="quiz-title-sm">— Es-tu aligné avec Suryn ? —</p>
+      <div id="quizContent">
+        <p class="quiz-progress" id="quizProgress">Question 1 / 5</p>
+        <p class="quiz-question" id="quizQuestion"></p>
+        <ul class="quiz-options" id="quizOptions"></ul>
+        <button class="quiz-btn" id="quizBtn" onclick="nextQuestion()">Continuer</button>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <h3 id="quizResultTitle"></h3>
+        <p id="quizResultText"></p>
+        <button class="quiz-btn" onclick="resetQuiz()" style="margin-top:30px">Recommencer</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MOUSE PHRASE -->
+<div class="mouse-phrase-section">
+  <p class="mouse-phrase" id="mousePhrase">"La dune qui résiste au vent s'épuise. Celle qui s'y abandonne voyage."</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">SURYN</div>
+  <div class="ornament" style="opacity:0.2;margin:20px 0">⟡ ⟡ ⟡</div>
+  <p>Religion fictive de l'Univers Naruto — Pays du Vent (Suna)</p>
+  <p style="margin-top:10px;opacity:0.3">Archives Surynistes — Troisième Ère du Vent</p>
+</footer>
+
+<audio id="windAudio" loop>
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
+</audio>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mouseX = 0, mouseY = 0;
+let ringX = 0, ringY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursor.style.left = mouseX - 4 + 'px';
+  cursor.style.top = mouseY - 4 + 'px';
+});
+
+function animateCursor() {
+  ringX += (mouseX - ringX) * 0.12;
+  ringY += (mouseY - ringY) * 0.12;
+  cursorRing.style.left = ringX - 18 + 'px';
+  cursorRing.style.top = ringY - 18 + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// SAND CANVAS
+const canvas = document.getElementById('sandCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const particles = [];
+for (let i = 0; i < 120; i++) {
+  particles.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.5 + 0.3,
+    vx: Math.random() * 0.8 + 0.2,
+    vy: (Math.random() - 0.5) * 0.3,
+    alpha: Math.random() * 0.5 + 0.1,
+    life: Math.random()
+  });
+}
+
+function drawSand() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life += 0.003;
+    if (p.x > canvas.width + 20) {
+      p.x = -10;
+      p.y = Math.random() * canvas.height;
+      p.life = 0;
+    }
+    const fade = Math.sin(p.life * Math.PI);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,169,110,${p.alpha * fade})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawSand);
+}
+drawSand();
+
+// SCROLL REVEAL
+const reveals = document.querySelectorAll('.reveal, .timeline-item, .quote-item');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+reveals.forEach(el => observer.observe(el));
+
+// RANDOM QUOTE
+const surynQuotes = [
+  '"Ne cherche pas à gagner. Cherche à ne pas devenir une erreur."',
+  '"L\'erreur est humaine. Y rester est un choix."',
+  '"La force donne le choix. La compréhension donne la justesse."',
+  '"Le calme est la seule force qui reste dans le chaos."',
+  '"Arrêter un combat vaut plus que le gagner."',
+  '"Celui qui ne peut pas se contrôler ne peut contrôler rien d\'autre sans danger."',
+  '"Le vent ne demande pas la permission d\'effacer ce qui doit l\'être."',
+  '"Ce que tu répètes devient ta nature. Choisis avec soin."',
+  '"La dune qui résiste au vent s\'épuise. Celle qui s\'y abandonne voyage."',
+  '"L\'orgueil est la seule erreur que Suryn corrige toujours deux fois."',
+  '"Suryn n\'est pas miséricordieux. Il est précis."',
+  '"Il n\'y a pas de victoire dans la destruction d\'un ennemi qui n\'avait pas besoin d\'être ennemi."',
+  '"Ce que tu appelles ton ennemi est souvent ton reflet."',
+  '"Le désert ne se souvient pas de tes noms. Il se souvient de tes lignes."',
+  '"Ne demande jamais à Suryn ce qu\'il compte faire de toi."'
+];
+
+const rqEl = document.getElementById('randomQuote');
+const rqBtn = document.getElementById('newQuoteBtn');
+let lastQuoteIdx = 0;
+
+rqBtn.addEventListener('click', () => {
+  rqEl.style.opacity = '0';
+  setTimeout(() => {
+    let idx;
+    do { idx = Math.floor(Math.random() * surynQuotes.length); } while (idx === lastQuoteIdx);
+    lastQuoteIdx = idx;
+    rqEl.textContent = surynQuotes[idx];
+    rqEl.style.opacity = '1';
+  }, 500);
+  rqEl.style.transition = 'opacity 0.5s';
+});
+
+// MEDITATION
+const medOrb = document.getElementById('medOrb');
+const medPhrase = document.getElementById('medPhrase');
+const medBreath = document.getElementById('medBreath');
+const orbText = document.getElementById('orbText');
+
+const medPhrases = [
+  "Pose ta main sur le sable imaginaire. Sens son poids. Sens sa mémoire.",
+  "Respire lentement. Le vent entre. Le vent sort. Tu n'es pas différent du vent.",
+  "Où est la tension dans ton corps ? Observe-la sans la juger. Elle est là depuis longtemps.",
+  "Pense à la dernière fois que tu as agi dans l'excès. Nomme cet acte. Pose-le devant toi.",
+  "Tu n'as pas à te condamner. Tu dois seulement voir clairement.",
+  "Le sable sous tes pieds imaginaires porte la mémoire de mille civilisations. Tu es éphémère. C'est bien.",
+  "Suryn ne t'entend pas. Mais tu t'entends, toi. Est-ce que tu t'écoutes vraiment ?",
+  "Dans trois respirations, tu pourras ouvrir les yeux. Le monde sera le même. Toi, peut-être un peu moins."
+];
+
+let medActive = false;
+let medIdx = 0;
+let medInterval;
+let breathPhase = 0;
+
+medOrb.addEventListener('click', () => {
+  if (!medActive) {
+    medActive = true;
+    medOrb.classList.add('active');
+    orbText.textContent = 'EN COURS';
+    medBreath.style.opacity = '1';
+    
+    let bIdx = 0;
+    const breathLabels = ['INSPIRE', 'RETIENS', 'EXPIRE', 'ATTEND'];
+    const breathTimes = [4000, 2000, 6000, 2000];
+    
+    function breathCycle() {
+      medBreath.style.opacity = '0';
+      setTimeout(() => {
+        medBreath.textContent = breathLabels[bIdx % 4];
+        medBreath.style.opacity = '1';
+        bIdx++;
+      }, 300);
+    }
+    breathCycle();
+    
+    medIdx = 0;
+    medPhrase.style.opacity = '1';
+    medPhrase.textContent = medPhrases[0];
+    
+    medInterval = setInterval(() => {
+      medPhrase.style.opacity = '0';
+      setTimeout(() => {
+        medIdx = (medIdx + 1) % medPhrases.length;
+        medPhrase.textContent = medPhrases[medIdx];
+        medPhrase.style.opacity = '1';
+        breathCycle();
+      }, 700);
+    }, 7000);
+    
+  } else {
+    medActive = false;
+    medOrb.classList.remove('active');
+    orbText.textContent = 'REPRENDRE';
+    medBreath.style.opacity = '0';
+    clearInterval(medInterval);
+  }
+});
+
+// QUIZ
+const quizData = [
+  {
+    q: "Face à un conflit que tu pourrais arrêter mais qui ne te concerne pas directement, quelle est ta réaction naturelle ?",
+    options: [
+      { t: "J'interviens immédiatement pour protéger les plus faibles", score: 2 },
+      { t: "J'observe pour comprendre avant d'agir", score: 4 },
+      { t: "Je continue mon chemin — ce n'est pas mon problème", score: 1 },
+      { t: "Je cherche la racine du déséquilibre avant de décider", score: 5 }
+    ]
+  },
+  {
+    q: "Un adversaire plus fort que toi t'affronte. Il pourrait te vaincre facilement mais hésite. Comment interprètes-tu cette hésitation ?",
+    options: [
+      { t: "Une faiblesse à exploiter immédiatement", score: 1 },
+      { t: "Un signe qu'il reconnaît quelque chose en moi", score: 3 },
+      { t: "Une invitation à trouver une voie sans combat", score: 5 },
+      { t: "Un piège probable", score: 2 }
+    ]
+  },
+  {
+    q: "Tu réalises après coup qu'une de tes décisions passées a causé une souffrance non intentionnelle. Quelle est ta première réaction ?",
+    options: [
+      { t: "Me justifier en expliquant mes bonnes intentions", score: 1 },
+      { t: "M'en vouloir profondément et longuement", score: 2 },
+      { t: "Comprendre ce qui m'a amené à cette décision pour l'éviter à l'avenir", score: 5 },
+      { t: "Essayer de réparer sans analyser trop profondément", score: 3 }
+    ]
+  },
+  {
+    q: "Quelle image décrit le mieux ta vision idéale de la force ?",
+    options: [
+      { t: "La montagne — immobile, imposante, permanente", score: 1 },
+      { t: "La tempête — puissante, imprévisible, libérée", score: 2 },
+      { t: "Le vent — présent partout, agissant sans être vu", score: 5 },
+      { t: "La rivière — constante, adaptable, inépuisable", score: 4 }
+    ]
+  },
+  {
+    q: "Face à un silence prolongé et inconfortable avec quelqu'un que tu respectes, que fais-tu ?",
+    options: [
+      { t: "Je brise le silence — l'inconfort me dérange", score: 1 },
+      { t: "J'attends qu'il parle en premier", score: 3 },
+      { t: "Je laisse le silence exister — il dit souvent plus que les mots", score: 5 },
+      { t: "Je cherche quelque chose d'utile à dire", score: 2 }
+    ]
+  }
+];
+
+let currentQ = 0;
+let totalScore = 0;
+let selectedOption = null;
+
+function loadQuestion() {
+  const q = quizData[currentQ];
+  document.getElementById('quizProgress').textContent = `Question ${currentQ + 1} / ${quizData.length}`;
+  document.getElementById('quizQuestion').textContent = q.q;
+  const opts = document.getElementById('quizOptions');
+  opts.innerHTML = '';
+  q.options.forEach((o, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<button class="quiz-option" onclick="selectOption(this, ${o.score})">${o.t}</button>`;
+    opts.appendChild(li);
+  });
+  selectedOption = null;
+}
+
+function selectOption(btn, score) {
+  document.querySelectorAll('.quiz-option').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedOption = score;
+}
+
+function nextQuestion() {
+  if (selectedOption === null) return;
+  totalScore += selectedOption;
+  currentQ++;
+  if (currentQ < quizData.length) {
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizContent').style.display = 'none';
+  document.getElementById('quizResult').style.display = 'block';
+  
+  const max = quizData.length * 5;
+  const pct = totalScore / max;
+  
+  let title, text;
+  if (pct >= 0.8) {
+    title = "Veilleur Aligné";
+    text = "Ta compréhension de Suryn est profonde. Tu agis avec précision plutôt qu'excès, tu écoutes plus que tu ne parles, et tu comprends que la vraie maîtrise n'est pas dans la force mais dans la justesse. Les Archivistes te reconnaîtraient comme un esprit du vent.";
+  } else if (pct >= 0.6) {
+    title = "Observateur en Chemin";
+    text = "Tu portes en toi les graines de l'alignement. Tu perçois la nuance là où d'autres ne voient que du noir et du blanc. Mais certaines résistances subsistent — des tendances à l'excès que la pratique suryniste pourrait polir. Le chemin est ouvert.";
+  } else if (pct >= 0.4) {
+    title = "Marcheur du Désert";
+    text = "Tu es entre deux mondes. Tu comprends intellectuellement l'équilibre mais le vivre t'est encore difficile. Le désert te reconnaît comme un passant honnête. Tu n'es pas encore un Veilleur — mais tu n'es pas non plus un excès que Suryn devrait corriger.";
+  } else {
+    title = "Enfant de l'Excès";
+    text = "Ta nature est encore trop attachée aux instincts premiers — la victoire, la domination, la justification. Ce n'est pas une condamnation. Suryn ne condamne pas. Mais si tu continues dans cette direction sans te questionner, la correction viendra. Elle vient toujours.";
+  }
+  
+  document.getElementById('quizResultTitle').textContent = title;
+  document.getElementById('quizResultText').textContent = text;
+}
+
+function resetQuiz() {
+  currentQ = 0;
+  totalScore = 0;
+  selectedOption = null;
+  document.getElementById('quizContent').style.display = 'block';
+  document.getElementById('quizResult').style.display = 'none';
+  loadQuestion();
+}
+
+loadQuestion();
+
+// MOUSE PHRASE
+const mousePhrases = [
+  '"La dune qui résiste au vent s\'épuise. Celle qui s\'y abandonne voyage."',
+  '"Suryn ne cherche pas à dominer. Il cherche à corriger."',
+  '"Le silence entre deux mots est souvent plus important que les mots eux-mêmes."',
+  '"Tu es éphémère. C\'est bien. L\'éphémère laisse de la place."',
+  '"Chaque grain de sable a voyagé plus loin que la plupart des hommes."',
+  '"Ce que tu appelles ta victoire est souvent ta dette envers demain."'
+];
+
+const mpEl = document.getElementById('mousePhrase');
+let lastMX = 0;
+let mpIdx = 0;
+let mpThrottle = false;
+
+document.addEventListener('mousemove', (e) => {
+  const dx = Math.abs(e.clientX - lastMX);
+  if (dx > 200 && !mpThrottle) {
+    mpThrottle = true;
+    mpEl.style.opacity = '0';
+    setTimeout(() => {
+      mpIdx = (mpIdx + 1) % mousePhrases.length;
+      mpEl.textContent = mousePhrases[mpIdx];
+      mpEl.style.opacity = '1';
+      lastMX = e.clientX;
+      setTimeout(() => { mpThrottle = false; }, 1500);
+    }, 400);
+    mpEl.style.transition = 'opacity 0.4s';
+  }
+});
+
+// WIND AUDIO (Web Audio API procedural wind)
+const audioBtn = document.getElementById('audioBtn');
+let audioCtx = null;
+let windNodes = [];
+let audioActive = false;
+
+audioBtn.addEventListener('click', () => {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    createWind();
+  }
+  if (audioActive) {
+    windNodes.forEach(n => {
+      try { n.gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5); } catch(e){}
+    });
+    audioActive = false;
+    audioBtn.textContent = '♪';
+  } else {
+    windNodes.forEach(n => {
+      try { n.gain.gain.setTargetAtTime(0.08, audioCtx.currentTime, 1); } catch(e){}
+    });
+    audioActive = true;
+    audioBtn.textContent = '♫';
+  }
+});
+
+function createWind() {
+  const frequencies = [80, 120, 160, 200, 240];
+  frequencies.forEach(freq => {
+    const bufferSize = 4096;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+    
+    const whiteNoise = audioCtx.createBufferSource();
+    whiteNoise.buffer = noiseBuffer;
+    whiteNoise.loop = true;
+    
+    const bandpass = audioCtx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.value = freq;
+    bandpass.Q.value = 0.5;
+    
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0;
+    
+    whiteNoise.connect(bandpass);
+    bandpass.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    whiteNoise.start();
+    windNodes.push({ gain: gainNode });
+    
+    // LFO
+    const lfoRate = 0.05 + Math.random() * 0.1;
+    function modulateGain() {
+      if (audioActive) {
+        const t = audioCtx.currentTime;
+        gainNode.gain.setValueAtTime(
+          0.04 + 0.04 * Math.sin(t * lfoRate * 2 * Math.PI),
+          t
+        );
+      }
+      setTimeout(modulateGain, 200);
+    }
+    setTimeout(modulateGain, 100);
+  });
+}
+
+// WIND PARTICLES (floating in body)
+for (let i = 0; i < 15; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = Math.random() * 3 + 1;
+  p.style.cssText = `
+    width:${size}px;height:${size}px;
+    top:${Math.random() * 100}vh;
+    animation-duration:${10 + Math.random() * 20}s;
+    animation-delay:${-Math.random() * 20}s;
+    opacity:${0.1 + Math.random() * 0.3};
+  `;
+  document.body.appendChild(p);
+}
+</script>
+</body>
+</html>
